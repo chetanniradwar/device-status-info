@@ -89,16 +89,11 @@ def get_all_location_points(request):
     except Exception as e:
         return JsonResponse({"status": False, "error": str(e)}, status=400)
 
-    if cache.get(f"alp_{device_id}"):
-        return JsonResponse(cache.get(f"alp_{device_id}"), status=200, safe=False)
-
     device_status_qs = DeviceStatus.objects.filter(device_id=device_id,
                                                    timestamp__gt=start_time, timestamp__lt=end_time).order_by('-sts')
 
     loc_points_list = list()
     for device_status_obj in device_status_qs:
         loc_points_list.append((device_status_obj.lat, device_status_obj.long, device_status_obj.timestamp))
-
-    cache.set(f"alp_{device_id}", loc_points_list, DEFAULT_CACHE_TIMEOUT)
 
     return JsonResponse(loc_points_list, status=200, safe=False)
